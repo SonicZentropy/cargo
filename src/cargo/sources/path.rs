@@ -286,6 +286,11 @@ impl<'cfg> PathSource<'cfg> {
 
         for (file_path, is_dir) in index_files.chain(untracked) {
             let file_path = file_path?;
+
+            //without canonicalization, Windows paths do not match pkg_path ever due to \\?\ prefix
+            #[cfg(target_os = "windows")]
+            let file_path = file_path.canonicalize()?;
+
             if skip_paths.contains(&file_path) {
                 continue;
             }
